@@ -1,0 +1,33 @@
+web:
+    build: web
+    ports:
+        - 5000:5000
+nginx:
+    image: nginx
+    volumes:
+        - ./nginx/simpleserver.conf:/etc/nginx/conf.d/simpleserver.conf
+        - ./nginx/log:/var/log/nginx
+    ports:
+        - 80:8080
+    links:
+        - web:simpleserver
+elasticsearch:
+    image: elasticsearch
+    ports:
+        - 9200:9200
+fluentd:
+    build: fluentd
+    ports:
+        - 24284:24284
+    links:
+        - elasticsearch
+    volumes:
+        - ./nginx/log:/var/log/nginx
+kibana:
+    image: kibana
+    ports:
+        - 9204:5601
+    environment:
+        - ELASTICSEARCH_URL=http://elasticsearch:9200
+    links:
+        - elasticsearch
